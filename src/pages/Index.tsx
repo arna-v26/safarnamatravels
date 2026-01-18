@@ -6,8 +6,11 @@ import { CircuitBuilderScreen } from "@/components/screens/CircuitBuilderScreen"
 import { BookingScreen } from "@/components/screens/BookingScreen";
 import { ActiveTripScreen } from "@/components/screens/ActiveTripScreen";
 import { PostTripScreen } from "@/components/screens/PostTripScreen";
+import { MyCircuitsScreen } from "@/components/screens/MyCircuitsScreen";
+import { SavedScreen } from "@/components/screens/SavedScreen";
+import { ProfileScreen } from "@/components/screens/ProfileScreen";
 
-type Screen = "discover" | "builder" | "booking" | "active" | "postTrip";
+type Screen = "discover" | "builder" | "booking" | "active" | "postTrip" | "circuits" | "saved" | "profile";
 type Tab = "explore" | "circuits" | "saved" | "profile";
 
 const Index = () => {
@@ -16,11 +19,25 @@ const Index = () => {
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
-    // Reset to discover when changing tabs
-    if (tab === "explore") {
-      setCurrentScreen("discover");
+    // Navigate to appropriate screen based on tab
+    switch (tab) {
+      case "explore":
+        setCurrentScreen("discover");
+        break;
+      case "circuits":
+        setCurrentScreen("circuits");
+        break;
+      case "saved":
+        setCurrentScreen("saved");
+        break;
+      case "profile":
+        setCurrentScreen("profile");
+        break;
     }
   };
+
+  // Determine if bottom nav should be shown
+  const showBottomNav = ["discover", "circuits", "saved", "profile", "postTrip"].includes(currentScreen);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -28,6 +45,24 @@ const Index = () => {
         return (
           <DiscoverScreen
             onSelectFestival={() => setCurrentScreen("builder")}
+          />
+        );
+      case "circuits":
+        return (
+          <MyCircuitsScreen
+            onViewCircuit={() => setCurrentScreen("active")}
+          />
+        );
+      case "saved":
+        return (
+          <SavedScreen
+            onSelectItem={() => setCurrentScreen("builder")}
+          />
+        );
+      case "profile":
+        return (
+          <ProfileScreen
+            onNavigate={(section) => console.log("Navigate to:", section)}
           />
         );
       case "builder":
@@ -53,7 +88,10 @@ const Index = () => {
       case "postTrip":
         return (
           <PostTripScreen
-            onPlanNext={() => setCurrentScreen("discover")}
+            onPlanNext={() => {
+              setActiveTab("explore");
+              setCurrentScreen("discover");
+            }}
           />
         );
       default:
@@ -62,9 +100,9 @@ const Index = () => {
   };
 
   return (
-    <MobileContainer hasBottomNav={currentScreen === "discover" || currentScreen === "postTrip"}>
+    <MobileContainer hasBottomNav={showBottomNav}>
       {renderScreen()}
-      {(currentScreen === "discover" || currentScreen === "postTrip") && (
+      {showBottomNav && (
         <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       )}
     </MobileContainer>
